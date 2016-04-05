@@ -1,0 +1,26 @@
+{
+    "name": "kevupton/laravel-swagger",
+    "description": "Laravel Swagger generator for the Model",
+    "keywords": ["laravel", "swagger", "swagger-php", "model", "eloquent"],
+    "type": "Extension",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Kevin Upton",
+            "email": "kevin@upton.tech"
+        }
+    ],
+    "require": {
+        "php": ">=5.3",
+        "zircote/swagger-php": "dev-master"
+    },
+    "autoload": {
+        "psr-4": {
+            "Kevupton\\LaravelSwagger\\": "src/Kevupton/LaravelSwagger/"
+        },
+        "files": [
+            "src/Kevupton/LaravelSwagger/functions.php"
+        ]
+    },
+    "minimum-stability": "stable"
+}

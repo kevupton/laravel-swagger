@@ -62,35 +62,12 @@ class DynamicMethod {
     /**
      * Creates a new Dynamic GET Method
      *
-     * @param string $name the ID of the method to store
      * @param array $data
      * @return DynamicMethod
      * @throws DynamicMethodException
      */
-    public static function GET($name, array $data = array()) {
-        //check if it already exists
-        if (is_null($val = self::_get($name))) {
-            if (!empty($data)) { //validate the data exists
-                $class = new self(Get::class, $data);
-            } else {
-                throw new DynamicMethodException("Dynamic Method not found and the data is empty to create one.");
-            }
-
-            return self::$methods[$name] = $class;
-        }
-
-        return $val;
-
-    }
-
-    /**
-     * Gets the DynamicMethod if it exists, else returns NULL
-     *
-     * @param $name
-     * @return DynamicMethod|null
-     */
-    private static function _get($name) {
-        return (isset(self::$methods[$name]))? self::$methods[$name]: null;
+    public static function GET(array $data = array()) {
+        return new self(Get::class, $data);
     }
 
     /**

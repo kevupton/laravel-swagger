@@ -50,22 +50,24 @@ class LaravelSwagger {
         /** @var \Illuminate\Routing\Route $route */
         foreach ($this->getRoutes() as $route) {
             //gets the controller
-            $controller = explode('@',$route['action']['uses']);
-            $controller = $controller[0];
+            if (isset($route['action']['uses'])) {
+                $controller = explode('@',$route['action']['uses']);
+                $controller = $controller[0];
 
-            list($methods, $routes, $default_handler) = MethodContainer::loadData($controller, $route['action']);
+                list($methods, $routes, $default_handler) = MethodContainer::loadData($controller, $route['action']);
 
-            $name = isset($route['action']['as'])? $route['action']['as']: null;
+                $name = isset($route['action']['as'])? $route['action']['as']: null;
 
-            //Calculate the direct route first
-            $handler = $this->get_route_val($routes, $name, $default_handler);
+                //Calculate the direct route first
+                $handler = $this->get_route_val($routes, $name, $default_handler);
 
-            if (!is_null($handler)) {
-                $handler->handle($controller, $this);
+                if (!is_null($handler)) {
+                    $handler->handle($controller, $this);
 
-                $handler->method()->data('path', $route['uri']);
+                    $handler->method()->data('path', $route['uri']);
 
-                $analysis->addAnnotation($handler->method()->make(), new Context(['-', $controller]));
+                    $analysis->addAnnotation($handler->method()->make(), new Context(['-', $controller]));
+                }
             }
         }
 

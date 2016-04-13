@@ -61,10 +61,69 @@ class DynamicMethod {
      *
      * @param array $data
      * @return DynamicMethod
-     * @throws DynamicMethodException
      */
     public static function GET(array $data = array()) {
         return new self(Get::class, $data);
+    }
+
+    /**
+     * Creates a new Dynamic POST Method
+     *
+     * @param array $data
+     * @return DynamicMethod
+     */
+    public static function POST(array $data = array()) {
+        return new self(Post::class, $data);
+    }
+
+    /**
+     * Creates a new Dynamic PUT Method
+     *
+     * @param array $data
+     * @return DynamicMethod
+     */
+    public static function PUT(array $data = array()) {
+        return new self(Put::class, $data);
+    }
+
+    /**
+     * Creates a new Dynamic PATCH Method
+     *
+     * @param array $data
+     * @return DynamicMethod
+     */
+    public static function PATCH(array $data = array()) {
+        return new self(Patch::class, $data);
+    }
+
+    /**
+     * Creates a new Dynamic DELETE Method
+     *
+     * @param array $data
+     * @return DynamicMethod
+     */
+    public static function DELETE(array $data = array()) {
+        return new self(Delete::class, $data);
+    }
+
+    /**
+     * Creates a new Dynamic HEAD Method
+     *
+     * @param array $data
+     * @return DynamicMethod
+     */
+    public static function HEAD(array $data = array()) {
+        return new self(Head::class, $data);
+    }
+
+    /**
+     * Creates a new Dynamic OPTIONS Method
+     *
+     * @param array $data
+     * @return DynamicMethod
+     */
+    public static function OPTIONS(array $data = array()) {
+        return new self(Options::class, $data);
     }
 
     /**

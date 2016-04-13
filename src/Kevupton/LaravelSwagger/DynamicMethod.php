@@ -1,6 +1,5 @@
 <?php namespace Kevupton\LaravelSwagger;
 
-use Kevupton\LaravelSwagger\Exceptions\DynamicMethodException;
 use Swagger\Annotations\AbstractAnnotation;
 use Swagger\Annotations\Delete;
 use Swagger\Annotations\Get;

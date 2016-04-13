@@ -10,6 +10,7 @@ use Swagger\Annotations\Options;
 use Swagger\Annotations\Patch;
 use Swagger\Annotations\Post;
 use Swagger\Annotations\Put;
+use Swagger\Context;
 
 class DynamicMethod {
 
@@ -118,11 +119,31 @@ class DynamicMethod {
     /**
      * Makes the Method
      *
+     * @param Context $context
      * @return Operation
      */
-    public function make() {
+    public function make(Context $context) {
         $class = $this->method;
+        $this->_make_parent($this->data, $context);
         return new $class($this->data);
+    }
+
+    /**
+     * Loop through each value and assign the context to the parent.
+     *
+     * @param $array
+     * @param Context $context
+     */
+    private function _make_parent(&$array, Context $context) {
+        foreach ($array as $key => $value) {
+            if ($value instanceof AbstractAnnotation) {
+                $child = new Context(['nested'=>true, 'class' => $context->class], $context);
+                $value->_context = $child;
+                $this->_make_parent($value, $child);
+            } else if (is_array($value)) {
+                $this->_make_parent($value, $context);
+            }
+        }
     }
 
     /**

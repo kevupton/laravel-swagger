@@ -47,7 +47,6 @@ class LaravelSwagger {
      */
     private function load_controllers(Analysis $analysis) {
 
-        /** @var \Illuminate\Routing\Route $route */
         foreach ($this->getRoutes() as $route) {
             //gets the controller
             if (isset($route['action']['uses'])) {
@@ -66,11 +65,12 @@ class LaravelSwagger {
 
                     $handler->method()->data('path', $route['uri']);
 
-                    $analysis->addAnnotation($handler->method()->make(), new Context(['-', $controller]));
+                    $context = new Context(['class' => $controller]);
+
+                    $analysis->addAnnotation($handler->method()->make($context), $context);
                 }
             }
         }
-
     }
 
     /**

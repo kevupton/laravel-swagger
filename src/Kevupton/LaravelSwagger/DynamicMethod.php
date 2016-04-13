@@ -14,9 +14,6 @@ use Swagger\Context;
 
 class DynamicMethod {
 
-    /** @var DynamicMethod[] the list of registered methods */
-    private static $methods = [];
-
     /** @var string */
     private $method;
 

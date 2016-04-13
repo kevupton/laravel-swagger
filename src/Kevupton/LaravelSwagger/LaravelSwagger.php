@@ -1,6 +1,7 @@
 <?php namespace Kevupton\LaravelSwagger;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Routing\Route;
 use Kevupton\LaravelSwagger\Exceptions\DynamicMethodException;
 use ReflectionClass;
 use Swagger\Analysis;
@@ -47,25 +48,77 @@ class LaravelSwagger {
     private function load_controllers(Analysis $analysis) {
 
         /** @var \Illuminate\Routing\Route $route */
-        foreach (\Route::getRoutes() as $route) {
+        foreach ($this->getRoutes() as $route) {
             //gets the controller
-            $controller = explode('@',$route->getActionName());
+            $controller = explode('@',$route['action']['uses']);
             $controller = $controller[0];
 
-            list($methods, $routes, $default_handler) = MethodContainer::loadData($controller, $route->getAction());
+            list($methods, $routes, $default_handler) = MethodContainer::loadData($controller, $route['action']);
+
+            $name = isset($route['action']['as'])? $route['action']['as']: null;
 
             //Calculate the direct route first
-            $handler = $this->get_route_val($routes, $route->getName(), $default_handler);
+            $handler = $this->get_route_val($routes, $name, $default_handler);
 
             if (!is_null($handler)) {
                 $handler->handle($controller, $this);
 
-                $handler->method()->data('path', $route->getPath());
+                $handler->method()->data('path', $route['uri']);
 
                 $analysis->addAnnotation($handler->method()->make(), new Context(['-', $controller]));
             }
         }
 
+    }
+
+    /**
+     * Gets all the routes that are registered
+     *
+     * @return array
+     */
+    private function getRoutes() {
+
+        if ($this->isLumen()) {
+
+            return app()->getRoutes();
+
+        } else {
+            $routes = \Route::getRoutes();
+
+            $array = [];
+
+            /** @var Route $route */
+            foreach ($routes as $route) {
+                foreach ($route->getMethods() as $method) {
+                    $array[] = [
+                        'method' => $method,
+                        'uri' => $route->getPath(),
+                        'action' => $route->getAction()
+                    ];
+                }
+            }
+
+            return $array;
+        }
+
+    }
+
+    /**
+     * Checks whether or not the application is Laravel
+     *
+     * @return bool
+     */
+    private function isLaravel() {
+        return !$this->isLumen();
+    }
+
+    /**
+     * Checks whether or not the application is Lumen
+     *
+     * @return bool
+     */
+    private function isLumen() {
+        return class_exists('Laravel\Lumen\Application');
     }
 
     /**

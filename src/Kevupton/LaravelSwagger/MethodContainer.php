@@ -42,6 +42,7 @@ abstract class MethodContainer {
      */
     public static function getRoutes($controller, $actions = []) {
         $value = self::_get($controller, $actions, self::ROUTES);
+        if (is_null($value)) $value = [];
         if (!is_array($value))
             throw new MethodContainerException("Invalid return value for MethodContainer");
         return $value;
@@ -57,6 +58,7 @@ abstract class MethodContainer {
      */
     public static function getMethods($controller, $actions = []) {
         $value = self::_get($controller, $actions, self::METHODS);
+        if (is_null($value)) $value = [];
         if (!is_array($value))
             throw new MethodContainerException("Invalid return value for MethodContainer");
         return $value;
@@ -72,8 +74,10 @@ abstract class MethodContainer {
     {
         $value = self::_get($controller, $actions, self::HANDLER);
         if (is_string($value)) return $value;
-        else if (empty($value)) $value = DynamicHandler::class;
+        else if (empty($value) || is_null($value)) $value = DynamicHandler::class;
         else throw new MethodContainerException("Invalid Swagger Handler");
+
+        return $value;
     }
 
     /**

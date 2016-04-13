@@ -56,11 +56,14 @@ class LaravelSwagger {
 
             //Calculate the direct route first
             $handler = $this->get_route_val($routes, $route->getName(), $default_handler);
+
             if (!is_null($handler)) {
                 $handler->handle($controller, $this);
-            }
 
-            var_dump($handler);
+                $handler->method()->data('path', $route->getPath());
+
+                $analysis->addAnnotation($handler->method()->make(), new Context(['-', $controller]));
+            }
         }
 
     }
@@ -71,7 +74,7 @@ class LaravelSwagger {
      * @param DynamicMethod[] $routes
      * @param string $name
      * @param string $handler
-     * @return DynamicHandler|DynamicMethod|null
+     * @return DynamicHandler|null
      * @throws DynamicMethodException
      */
     private function get_route_val($routes, $name, $handler) {

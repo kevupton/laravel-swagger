@@ -1,6 +1,7 @@
 <?php namespace Kevupton\LaravelSwagger;
 
 use Illuminate\Database\Eloquent\Model;
+use Kevupton\LaravelSwagger\Exceptions\DynamicHandlerException;
 use Kevupton\LaravelSwagger\Exceptions\DynamicMethodException;
 
 class DynamicHandler {
@@ -26,6 +27,7 @@ class DynamicHandler {
      *
      * @param String $class the Controller class name
      * @param LaravelSwagger $LS the LaravelSwagger instance.
+     * @throws DynamicHandlerException
      */
     public function handle($class, LaravelSwagger $LS) {
 
@@ -47,9 +49,22 @@ class DynamicHandler {
                 }
             }
 
+            if (is_null($value)) {
+                throw new DynamicHandlerException("$key value is NULL");
+            }
+
             $this->method->set($key, $value);
         }
 
+    }
+
+    /**
+     * Gets the DynamicMethod associated with the Handle.
+     *
+     * @return DynamicMethod
+     */
+    public function method() {
+        return $this->method;
     }
 
 }

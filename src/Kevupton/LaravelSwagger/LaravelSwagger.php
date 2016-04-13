@@ -1,6 +1,7 @@
 <?php namespace Kevupton\LaravelSwagger;
 
 use Illuminate\Database\Eloquent\Model;
+use Kevupton\LaravelSwagger\Exceptions\DynamicMethodException;
 use ReflectionClass;
 use Swagger\Analysis;
 use Schema;
@@ -30,6 +31,80 @@ class LaravelSwagger {
      */
     public function __invoke(Analysis $analysis)
     {
+
+        $this->load_models($analysis);
+
+        $this->load_controllers($analysis);
+
+    }
+
+
+    /**
+     * Loads the Controllers into the Swagger JSON
+     *
+     * @param Analysis $analysis
+     */
+    private function load_controllers(Analysis $analysis) {
+
+        /** @var \Illuminate\Routing\Route $route */
+        foreach (\Route::getRoutes() as $route) {
+            //gets the controller
+            $controller = explode('@',$route->getActionName());
+            $controller = $controller[0];
+
+            list($methods, $routes, $default_handler) = MethodContainer::loadData($controller, $route->getAction());
+
+            //Calculate the direct route first
+            $handler = $this->get_route_val($routes, $route->getName(), $default_handler);
+            if (!is_null($handler)) {
+                $handler->handle($controller, $this);
+            }
+
+            var_dump($handler);
+        }
+
+    }
+
+    /**
+     * Gets the DynamicMethod for the specific route value.
+     *
+     * @param DynamicMethod[] $routes
+     * @param string $name
+     * @param string $handler
+     * @return DynamicHandler|DynamicMethod|null
+     * @throws DynamicMethodException
+     */
+    private function get_route_val($routes, $name, $handler) {
+
+        if (!is_string($name)) return null;
+
+        /**
+         * @var string $route
+         * @var DynamicMethod|DynamicHandler $dynamic_method
+         */
+        foreach ($routes as $route => $value) {
+            if (preg_match("/" . preg_quote($route, '/') . "$/", $name)) {
+                if ($value instanceof DynamicMethod) {
+                    return new $handler($value);
+                } else if ($value instanceof DynamicHandler) {
+                    return $value;
+                } else {
+                    throw new DynamicMethodException("Invalid Value for $route in $name");
+                }
+            }
+        }
+
+        return null;
+    }
+
+
+    /**
+     * Loads the Laravel Models into the Swagger JSON
+     *
+     * @param Analysis $analysis
+     */
+    private function load_models(Analysis $analysis) {
+
         foreach ($this->models as $model) {
             /** @var Model $model */
             $obj = new $model();
@@ -51,12 +126,10 @@ class LaravelSwagger {
                     ]);
                 }
 
-
-
                 foreach ($with->getValue($obj) as $item) {
                     $class = get_class($obj->{$item}()->getModel());
                     $properties[] = new Property([
-                       'property' => $item,
+                        'property' => $item,
                         'ref' => '#/definitions/' . $class
                     ]);
                 }
@@ -79,5 +152,15 @@ class LaravelSwagger {
      */
     private function getModelName($model) {
         return last(explode("\\", $model));
+    }
+
+    /**
+     * Checks if the model exists in the array.
+     *
+     * @param $model
+     * @return bool
+     */
+    public function hasModel($model) {
+        return in_array($model, $this->models);
     }
 }

@@ -22,6 +22,8 @@ Swagger Annotations Generator for Laravel
 >  * [Definition](#definition)
 >  * [Implementation](#implementation)
 > * [Overriding Values](#overriding-values)
+> * [Seperate Container Class](#seperate-container-class)
+
 ***
 
 ##MODEL INTEGRATION##

@@ -33,6 +33,6 @@ script:
   - composer update
   - php artisan vendor:publish --force
   - php artisan migrate --seed
-  - phpunit "vendor/kevupton/laravel-swagger"
+  - phpunit "vendor/$PACKAGE_NAME"
 
   # run the script calling unit tests and so on

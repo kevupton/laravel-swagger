@@ -25,7 +25,7 @@ install:
   - export DB_USERNAME=travis DB_DATABASE=hyn DB_PASSWORD= QUEUE_DRIVER=sync
 #  - export PACKAGE_PROVIDER=Kevupton\\\\Referrals\\\\Providers\\\\ReferralsServiceProvider::class
 #  - export SEED_CLASS=TestSeeds::class
-  - export PACKAGE_NAME=kevupton/laravel-swagger
+  - export PACKAGE_NAME="kevupton/laravel-swagger"
   - curl -s https://raw.githubusercontent.com/kevupton/docker-laravel-tests/master/setup.sh | bash
 
 script:

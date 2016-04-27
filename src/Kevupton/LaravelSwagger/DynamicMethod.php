@@ -131,10 +131,19 @@ class DynamicMethod {
      * @param $key
      * @param $value
      */
-    public function set($key, $value) {
+    public function setValue($key, $value) {
 
         $this->links[$key] = $value;
 
+    }
+
+    /**
+     * Gets the value from the linked list
+     *
+     * @param $key
+     */
+    public function getValue($key) {
+        return $this->links[$key];
     }
 
     /**

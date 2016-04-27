@@ -4,6 +4,6 @@
 class LaravelSwaggerTest extends TestCase
 {
     public function testEmptyScan() {
-        \Kevupton\LaravelSwagger\scan(app_path('../tests/swagger'));
+        \Kevupton\LaravelSwagger\scan(__DIR__ . '../tests/swagger');
     }
 }

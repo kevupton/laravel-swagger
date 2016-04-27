@@ -9,6 +9,7 @@ use Schema;
 use Swagger\Annotations\Definition;
 use Swagger\Annotations\Property;
 use Swagger\Context;
+use DB;
 
 class LaravelSwagger {
 
@@ -178,10 +179,16 @@ class LaravelSwagger {
                 $properties = [];
 
                 foreach ($list as $item) {
-                    $properties[] = new Property([
+
+                    $data = [
                         'property' => $item,
-                        'type' => 'string'
-                    ]);
+                        'type' => $this->get_type($obj->getTable(), $item)
+                    ];
+
+                    $default = $this->get_default($obj->getTable(), $item);
+                    if (!is_null($default)) $data['default'] = $default;
+
+                    $properties[] = new Property($data);
                 }
 
                 foreach ($with->getValue($obj) as $item) {
@@ -200,6 +207,28 @@ class LaravelSwagger {
                 $analysis->addAnnotation($definition, new Context(['-', $model]));
             }
         }
+    }
+
+    /**
+     * Gets the type of the column from the database.
+     *
+     * @param $table
+     * @param $column
+     * @return string
+     */
+    private function get_type($table, $column) {
+        return DB::connection()->getDoctrineColumn($table, $column)->getType()->getName();
+    }
+
+    /**
+     * Gets the default value for a column.
+     *
+     * @param $table
+     * @param $column
+     * @return null|string
+     */
+    private function get_default($table, $column) {
+        return DB::connection()->getDoctrineColumn($table, $column)->getDefault();
     }
 
     /**

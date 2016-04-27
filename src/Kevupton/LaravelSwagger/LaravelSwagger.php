@@ -50,7 +50,7 @@ class LaravelSwagger {
 
         foreach ($this->getRoutes() as $route) {
             //gets the controller
-            if (isset($route['action']['uses'])) {
+            if (isset($route['action']['uses']) && is_string($route['action']['uses'])) {
                 $controller = explode('@',$route['action']['uses']);
                 $controller = $controller[0];
 

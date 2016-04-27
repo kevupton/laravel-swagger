@@ -52,7 +52,7 @@ class DynamicHandler {
             $current_value = $this->method->getValue($key);
 
             //if the string is more than the specified key then do a replace
-            if (strlen($current_value) > ($key + 4)) {
+            if (strlen($current_value) > (strlen($key) + 4)) {
                 $value = str_replace("{{".$key."}}",$value, $current_value);
             }
 

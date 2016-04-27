@@ -49,19 +49,12 @@ class DynamicHandler {
                 }
             }
 
-            $current_value = $this->method->getValue($key);
-
-            //if the string is more than the specified key then do a replace
-            if (strlen($current_value) > (strlen($key) + 4)) {
-                $value = str_replace("{{".$key."}}",$value, $current_value);
-            }
-
             //if there is no value then throw an exception
             if (is_null($value)) {
                 throw new DynamicHandlerException("$key value is NULL");
             }
 
-            $this->method->setValue($key, $value);
+            $this->method->set($key, $value);
         }
 
     }

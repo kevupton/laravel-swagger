@@ -48,7 +48,12 @@ class DynamicMethod {
                 $array = array_merge($array, $this->_register_links($value));
             } else if (preg_match('/\{\{(.*?)\}\}/', $value, $matches)) {
                 $id = $matches[1];
-                $array[$id] = &$value;
+                //add to the list of links for that specific id
+                if (isset($array[$id])) {
+                    $array[$id][] = &$value;
+                } else {
+                    $array[$id] = [&$value];
+                }
             }
         }
 
@@ -131,19 +136,16 @@ class DynamicMethod {
      * @param $key
      * @param $value
      */
-    public function setValue($key, $value) {
+    public function set($key, $value) {
 
-        $this->links[$key] = $value;
+        foreach ($this->links[$key] as &$current) {
+            //if the string is more than the specified key then do a replace
+            if (strlen($current) > (strlen($key) + 4)) {
+                $value = str_replace("{{".$key."}}",$value, $current);
+            }
+            $current = $value;
+        }
 
-    }
-
-    /**
-     * Gets the value from the linked list
-     *
-     * @param $key
-     */
-    public function getValue($key) {
-        return $this->links[$key];
     }
 
     /**

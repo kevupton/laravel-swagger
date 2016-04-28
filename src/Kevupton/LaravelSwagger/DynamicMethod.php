@@ -45,7 +45,14 @@ class DynamicMethod {
 
         foreach ($obj as $key => &$value) {
             if (is_array($value) || $value instanceof AbstractAnnotation || $value instanceof \stdClass) {
-                $array = array_merge($array, $this->_register_links($value));
+                $temp = $this->_register_links($value);
+                foreach ($temp as $temp_key => $temp_value) {
+                    if (isset($array[$temp_key])) {
+                        $array[$temp_key] = array_merge($array[$temp_key], $temp_value);
+                    } else {
+                        $array[$temp_key] = $temp_value;
+                    }
+                }
             } else if (preg_match('/\{\{(.*?)\}\}/', $value, $matches)) {
                 $id = $matches[1];
                 //add to the list of links for that specific id

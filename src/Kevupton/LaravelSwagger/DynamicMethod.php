@@ -148,7 +148,7 @@ class DynamicMethod {
         foreach ($this->links[$key] as &$current) {
             //if the string is more than the specified key then do a replace
             if (strlen($current) > (strlen($key) + 4)) {
-                $value = str_replace("{{".$key."}}",$value, $current);
+                $value = str_replace("{{".$key."}}","$value", $current);
             }
             $current = $value;
         }

@@ -20,10 +20,8 @@ use Symfony\Component\Finder\Finder;
 function scan($directory, $options = array())
 {
     $models = @$options['models'] ?: [];
-    $processors = @$options['processors'] ?: Analysis::processors();
-
-    /** Edit the processors to be called. Add the handler to the start */
-    $options['processors'] = array_prepend($processors, new LaravelSwagger($models));
+    $options['processors'] = @$options['processors'] ?:
+        array_merge([new LaravelSwagger($models)], Analysis::processors());
 
     return \Swagger\scan($directory, $options);
 }

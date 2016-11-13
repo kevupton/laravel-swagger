@@ -1,6 +1,5 @@
 <?php namespace Kevupton\LaravelSwagger;
 
-use Mevu\Logic\Core\Models;
 use Swagger\Analysis;
 use Swagger\Annotations\Swagger;
 use Symfony\Component\Finder\Finder;

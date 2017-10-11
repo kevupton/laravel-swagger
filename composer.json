@@ -23,5 +23,9 @@
             "src/Kevupton/LaravelSwagger/functions.php"
         ]
     },
-    "minimum-stability": "stable"
+    "minimum-stability": "stable",
+    "require-dev": {
+        "laravel/laravel": "^5.5",
+        "laravel/lumen": "^5.5"
+    }
 }

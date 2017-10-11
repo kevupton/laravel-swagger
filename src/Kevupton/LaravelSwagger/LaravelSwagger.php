@@ -8,7 +8,9 @@ use ReflectionClass;
 use Swagger\Analysis;
 use Schema;
 use Swagger\Annotations\Definition;
+use Swagger\Annotations\Info;
 use Swagger\Annotations\Property;
+use Swagger\Annotations\Swagger;
 use Swagger\Context;
 use DB;
 
@@ -35,13 +37,25 @@ class LaravelSwagger
      */
     public function __invoke (Analysis $analysis)
     {
-
         $this->load_models($analysis);
-
         $this->load_controllers($analysis);
-
+        $this->add_host($analysis);
     }
 
+    /**
+     * Adds the Host to the Swagger annotation
+     *
+     * @param Analysis $analysis
+     */
+    private function add_host (Analysis $analysis)
+    {
+        /** @var Swagger[] $annotation */
+        $annotation = $analysis->getAnnotationsOfType(Swagger::class);
+
+        if (isset($annotation[0])) {
+            $annotation[0]->host = url('/');
+        }
+    }
 
     /**
      * Loads the Controllers into the Swagger JSON

@@ -8,7 +8,6 @@ use ReflectionClass;
 use Swagger\Analysis;
 use Schema;
 use Swagger\Annotations\Definition;
-use Swagger\Annotations\Info;
 use Swagger\Annotations\Property;
 use Swagger\Annotations\Swagger;
 use Swagger\Context;
@@ -53,7 +52,7 @@ class LaravelSwagger
         $annotation = $analysis->getAnnotationsOfType(Swagger::class);
 
         if (isset($annotation[0])) {
-            $annotation[0]->host = url('/');
+            $annotation[0]->host = preg_replace("(^https?://)", "", url('/'));
         }
     }
 

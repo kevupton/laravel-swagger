@@ -105,6 +105,9 @@ In order to create these dynamic methods, the best way is to create a Parent Con
 <?php namespace App\Http\Controllers;
 
 use Illuminate\Routing\Controller;
+use Kevupton\LaravelSwagger\DynamicMethod;
+use Swagger\Annotations\Parameter;
+use Swagger\Annotations\Response;
 
 class BaseController extends Controller {
 

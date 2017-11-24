@@ -1,14 +1,14 @@
 # laravel-swagger
 Swagger Annotations Generator for Laravel
 
-### Uses Swagger PHP and laravel to generate the Swagger JSON ###
+### Uses Swagger PHP and laravel to generate the Swagger JSON
 ***
 
-###Install###
+###Install
 > composer require kevupton/laravel-swagger
 
 ***
-##Table Of Contents##
+##Table Of Contents
 
 > *  [MODEL INTEGRATION](#model-integration)
 >  * [Usage](#usage)
@@ -26,9 +26,9 @@ Swagger Annotations Generator for Laravel
 
 ***
 
-##MODEL INTEGRATION##
+##MODEL INTEGRATION
 
-###Usage###
+###Usage
 > `\Kevupton\LaravelSwagger\scan($path, $models);`
 
 Use `\Kevupton\LaravelSwagger\scan` instead of `\Swagger\scan`: (instead of swagger-php's scan method)
@@ -58,7 +58,7 @@ class User {
 }
 ```
 
-###Output###
+###Output
 ```
 "App\\Models\\User": {
     "properties": {
@@ -80,13 +80,13 @@ class User {
 ```
 
 
-##CONTROLLER INTEGRATION##
+##CONTROLLER INTEGRATION
 The controller integration allows you to define a generic output with customized fields for each Controller. It will require a parent controller to define the shape of each output response.
 
-###Getting Started###
+###Getting Started
 The first things that you need to look into grouping your routes, and having a parent Controller define each group.
 
-#####The Routes#####
+#####The Routes
 ```php
 Route::get('/v1/test', ['uses' => 'TestController@index', 'as' => 'v1.test.index']);
 Route::get('/v1/foo', ['uses' => 'FooController@index', 'as' => 'v1.foo.index']);
@@ -99,7 +99,7 @@ Now each route index shares the same functionality, which is to display a list o
 ***
 In order to create these dynamic methods, the best way is to create a Parent Controller, or `BaseController` which each extends.
 
-###Example###
+###Example
 
 ```php
 <?php namespace App\Http\Controllers;
@@ -139,12 +139,12 @@ class BaseController extends Controller {
 
 `return []` is the array containing the route `index` and the value `DynamicMethod::GET`
 
-####Route Matching####
+####Route Matching
 the route key: `index` in the example about defines a generic search in the route names that end with that value. Example: `index` will match `v1.test.index` but not `v1.index.test`. It has to end with that value. So `test.index` will also match `v1.test.index`
 
 If it matches then it will look for each key on the controller.
 
-###Keys###
+###Keys
 > Keys are defined with **{{keyname}}**
 
 In the example above you can see the example keys:
@@ -155,7 +155,7 @@ In the example above you can see the example keys:
 ```
 The default behavior will search for these values on each Controller. This behavior can be modified via [Editing the Default Behaviour](#custom-handler)
 
-####The Default Behavior####
+####The Default Behavior
 The handler will search the *Child Controller* for each value:
 
 ```php
@@ -168,7 +168,7 @@ So for the test controller it will place those variables into each key. **Note h
 
 This will give an example output of:
 
-###Example Output###
+###Example Output
 This is one of the paths located in the swagger json output.
 ```json
 /v1/test: {
@@ -197,8 +197,8 @@ This is one of the paths located in the swagger json output.
 },
 ```
 
-##CUSTOM HANDLER##
-###Definition###
+##CUSTOM HANDLER
+###Definition
 Extend the handler class and implement the handle method
 ```php
 <?php namespace App\Handlers;
@@ -237,7 +237,7 @@ class CustomHandler extends DynamicHandler {
 
 In order to implement it just add it to the custom controller
 
-###Implementation###
+###Implementation
 
 ```php
 use App\Handlers\CustomHandler;
@@ -252,12 +252,12 @@ class BaseController extends Controller {
 
 ```
 
-##Overriding Values##
+##Overriding Values
 
 All values can be overridden from the *Child Controller*.
 
 
-##Seperate Container Class##
+##Seperate Container Class
 A seperate class can be used for implementing the definition of the methods:
 `getSwaggerRoutes` and `getSwaggerHandler`
 

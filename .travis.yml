@@ -16,10 +16,6 @@ matrix:
   allow_failures:
     - php: hhvm
 
-cache:
-  directories:
-    - laravel
-
 install:
   # create a new database for the hyn connection
   - export DB_USERNAME=travis DB_DATABASE=hyn DB_PASSWORD= QUEUE_DRIVER=sync

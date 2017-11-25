@@ -52,7 +52,11 @@ class LaravelSwagger
         $annotation = $analysis->getAnnotationsOfType(Swagger::class);
 
         if (isset($annotation[0])) {
-            $annotation[0]->host = preg_replace("(^https?://)", "", url('/'));
+            if ($annotation[0]->host != '') {
+                $annotation[0]->host = preg_replace("(^https?://)", '', $annotation[0]->host);
+            } else {
+                $annotation[0]->host = preg_replace("(^https?://)", '', url('/'));
+            }
         }
     }
 

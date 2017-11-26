@@ -120,10 +120,10 @@ class BaseController extends Controller {
 				'parameters' => [
 					new Parameter([
 						'in' => 'query',
-                        'name' => 'page',
-                        'description' => 'the page number',
-                        'required' => false,
-                        'type' => 'string'
+                        			'name' => 'page',
+                        			'description' => 'the page number',
+                        			'required' => false,
+                        			'type' => 'string'
 					])
 				],
 				'value' => new Response([
@@ -174,30 +174,32 @@ This will give an example output of:
 ### Example Output
 This is one of the paths located in the swagger json output.
 ```json
-/v1/test: {
-	get: {
-		tags: [
-			"my custom tag"
-		],
-		summary: "how awesome is this",
-		parameters: [
-			{
-				name: "page",
-				in: "query",
-				description: "the page number",
-				required: false,
-				type: "string"
-			},
-		],
-		responses: {
-			200: {
-			description: "test",
-			schema: {
-				$ref: "#/definitions/dynamic-definition-1"
+{
+	"/v1/test": {
+		"get": {
+			"tags": [
+				"my custom tag"
+			],
+			"summary": "how awesome is this",
+			"parameters": [
+				{
+					"name": "page",
+					"in": "query",
+					"description": "the page number",
+					"required": false,
+					"type": "string"
+				},
+			],
+			"responses": {
+				"200": {
+				"description": "test",
+				"schema": {
+					"$ref": "#/definitions/dynamic-definition-1"
+				}
 			}
 		}
-	}
-},
+	},
+}
 ```
 
 ## CUSTOM HANDLER

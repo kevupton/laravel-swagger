@@ -1,17 +1,17 @@
 <?php namespace Kevupton\LaravelSwagger;
 
+use DB;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Routing\Route;
 use Kevupton\LaravelSwagger\Exceptions\DynamicMethodException;
 use Laravel\Lumen\Application;
 use ReflectionClass;
-use Swagger\Analysis;
 use Schema;
+use Swagger\Analysis;
 use Swagger\Annotations\Definition;
 use Swagger\Annotations\Property;
 use Swagger\Annotations\Swagger;
 use Swagger\Context;
-use DB;
 
 class LaravelSwagger
 {
@@ -24,7 +24,7 @@ class LaravelSwagger
      *
      * @param array $models
      */
-    public function __construct ($models = [])
+    public function __construct($models = [])
     {
         $this->models = $models;
     }
@@ -34,7 +34,7 @@ class LaravelSwagger
      *
      * @param Analysis $analysis
      */
-    public function __invoke (Analysis $analysis)
+    public function __invoke(Analysis $analysis)
     {
         $this->load_models($analysis);
         $this->load_controllers($analysis);
@@ -46,13 +46,17 @@ class LaravelSwagger
      *
      * @param Analysis $analysis
      */
-    private function add_host (Analysis $analysis)
+    private function add_host(Analysis $analysis)
     {
         /** @var Swagger[] $annotation */
         $annotation = $analysis->getAnnotationsOfType(Swagger::class);
 
         if (isset($annotation[0])) {
-            $annotation[0]->host = preg_replace("(^https?://)", "", url('/'));
+            if ($annotation[0]->host != '') {
+                $annotation[0]->host = preg_replace('(^https?://)', '', $annotation[0]->host);
+            } else {
+                $annotation[0]->host = preg_replace('(^https?://)', '', url('/'));
+            }
         }
     }
 
@@ -61,7 +65,7 @@ class LaravelSwagger
      *
      * @param Analysis $analysis
      */
-    private function load_controllers (Analysis $analysis)
+    private function load_controllers(Analysis $analysis)
     {
 
         foreach ($this->getRoutes() as $route) {
@@ -95,7 +99,7 @@ class LaravelSwagger
      *
      * @return array
      */
-    private function getRoutes ()
+    private function getRoutes()
     {
 
         if ($this->isLumen()) {
@@ -113,8 +117,8 @@ class LaravelSwagger
             foreach ($routes as $route) {
                 $array[] = [
                     'method' => $route->methods,
-                    'uri' => $route->uri,
-                    'action' => $route->action
+                    'uri'    => $route->uri,
+                    'action' => $route->action,
                 ];
             }
 
@@ -128,7 +132,7 @@ class LaravelSwagger
      *
      * @return bool
      */
-    private function isLaravel ()
+    private function isLaravel()
     {
         return !$this->isLumen();
     }
@@ -138,7 +142,7 @@ class LaravelSwagger
      *
      * @return bool
      */
-    private function isLumen ()
+    private function isLumen()
     {
         return class_exists('Laravel\Lumen\Application');
     }
@@ -152,17 +156,19 @@ class LaravelSwagger
      * @return DynamicHandler|null
      * @throws DynamicMethodException
      */
-    private function get_route_val ($routes, $name, $handler)
+    private function get_route_val($routes, $name, $handler)
     {
 
-        if (!is_string($name)) return null;
+        if (!is_string($name)) {
+            return null;
+        }
 
         /**
          * @var string $route
          * @var DynamicMethod|DynamicHandler $dynamic_method
          */
         foreach ($routes as $route => $value) {
-            if (preg_match("/" . preg_quote($route, '/') . "$/", $name)) {
+            if (preg_match('/'.preg_quote($route, '/').'$/', $name)) {
                 if ($value instanceof DynamicMethod) {
                     return new $handler($value);
                 } else if ($value instanceof DynamicHandler) {
@@ -176,13 +182,12 @@ class LaravelSwagger
         return null;
     }
 
-
     /**
      * Loads the Laravel Models into the Swagger JSON
      *
      * @param Analysis $analysis
      */
-    private function load_models (Analysis $analysis)
+    private function load_models(Analysis $analysis)
     {
 
         foreach ($this->models as $model) {
@@ -191,7 +196,7 @@ class LaravelSwagger
 
             if ($obj instanceof Model) { //check to make sure it is a model
                 $reflection = new ReflectionClass($obj);
-                $with = $reflection->getProperty('with');
+                $with       = $reflection->getProperty('with');
                 $with->setAccessible(true);
 
                 $list = Schema::getColumnListing($obj->getTable());
@@ -203,26 +208,28 @@ class LaravelSwagger
 
                     $data = [
                         'property' => $item,
-                        'type' => $this->get_type($obj->getTable(), $item)
+                        'type'     => $this->get_type($obj->getTable(), $item),
                     ];
 
                     $default = $this->get_default($obj->getTable(), $item);
-                    if (!is_null($default)) $data['default'] = $default;
+                    if (!is_null($default)) {
+                        $data['default'] = $default;
+                    }
 
                     $properties[] = new Property($data);
                 }
 
                 foreach ($with->getValue($obj) as $item) {
-                    $class = get_class($obj->{$item}()->getModel());
+                    $class        = get_class($obj->{$item}()->getModel());
                     $properties[] = new Property([
                         'property' => $item,
-                        'ref' => '#/definitions/' . $class
+                        'ref'      => '#/definitions/'.$class,
                     ]);
                 }
 
                 $definition = new Definition([
                     'definition' => $model,
-                    'properties' => $properties
+                    'properties' => $properties,
                 ]);
 
                 $analysis->addAnnotation($definition, new Context(['-', $model]));
@@ -237,7 +244,7 @@ class LaravelSwagger
      * @param $column
      * @return string
      */
-    private function get_type ($table, $column)
+    private function get_type($table, $column)
     {
         return DB::connection()->getDoctrineColumn($table, $column)->getType()->getName();
     }
@@ -249,7 +256,7 @@ class LaravelSwagger
      * @param $column
      * @return null|string
      */
-    private function get_default ($table, $column)
+    private function get_default($table, $column)
     {
         return DB::connection()->getDoctrineColumn($table, $column)->getDefault();
     }
@@ -260,9 +267,9 @@ class LaravelSwagger
      * @param $model
      * @return string
      */
-    private function getModelName ($model)
+    private function getModelName($model)
     {
-        return last(explode("\\", $model));
+        return last(explode('\\', $model));
     }
 
     /**
@@ -271,7 +278,7 @@ class LaravelSwagger
      * @param $model
      * @return bool
      */
-    public function hasModel ($model)
+    public function hasModel($model)
     {
         return in_array($model, $this->models);
     }

@@ -93,7 +93,7 @@ Route::get('/v1/test', ['uses' => 'TestController@index', 'as' => 'v1.test.index
 Route::get('/v1/foo', ['uses' => 'FooController@index', 'as' => 'v1.foo.index']);
 Route::get('/v1/bar', ['uses' => 'BarController@index', 'as' => 'v1.bar.index']);
 
-Route::get('/v1/bar/{bar}', ['uses' => 'BarController@index', 'as' => 'v1.bar.show']);
+Route::get('/v1/bar/{bar}', ['uses' => 'BarController@show', 'as' => 'v1.bar.show']);
 ```
 
 ***

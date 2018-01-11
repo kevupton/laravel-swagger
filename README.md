@@ -1,43 +1,42 @@
-# laravel-swagger
-Swagger Annotations Generator for Laravel
+# laravel-swagger [![kevupton/laravel-swagger](https://travis-ci.org/kevupton/laravel-swagger.svg?branch=master)](https://travis-ci.org/kevupton/laravel-swagger)
+Swagger Annotations Generator for Laravel 5.0 and up.
 
-### Uses Swagger PHP and laravel to generate the Swagger JSON
-***
 
-### Install
-> composer require kevupton/laravel-swagger
 
-***
-## Table Of Contents
+## Introduction
+This package uses the Swagger PHP library and Laravel to generate an OpenAPI 3.0-compliant JSON Specification.
 
-> *  [MODEL INTEGRATION](#model-integration)
->  * [Usage](#usage)
->  * [Output](#output)
-> * [CONTROLLER INTEGRATION](#controller-integration)
->  * [Getting Started](#getting-started)
->  * [Example](#example)
->  * [Keys](#keys)
->  * [Example Output](#example-output)
-> * [Custom Handler](#custom-handler)
->  * [Definition](#definition)
->  * [Implementation](#implementation)
+This package supports Laravel 5.0 and above.
+
+## Installation
+```bash
+$ composer require kevupton/laravel-swagger
+```
+
+
+# Table Of Contents
+
+> * [Models](#models)
+> * [Controllers](#controllers)
+> * [Custom Handlers](#custom-handlers)
 > * [Overriding Values](#overriding-values)
 > * [Seperate Container Class](#seperate-container-class)
 
-***
 
-## MODEL INTEGRATION
+
+## Models
 
 ### Usage
 > `\Kevupton\LaravelSwagger\scan($path, $models);`
 
-Use `\Kevupton\LaravelSwagger\scan` instead of `\Swagger\scan`: (instead of swagger-php's scan method)
+Define your Eloquent Models as shown below, in order for `laravel-swagger` to include in your specification:
+
 ```PHP
 /** @var Swagger\Annotations\Swagger $swagger */
 $swagger = \Kevupton\LaravelSwagger\scan(app_path('location'), [
     'models' => [
         /** All models go in here */
-        \App\Models\User::class
+        \App\Models\User::class,
     ]
 ]);
 ```
@@ -59,7 +58,7 @@ class User {
 ```
 
 ### Output
-```
+```JSON
 "App\\Models\\User": {
     "properties": {
         "id": {
@@ -76,30 +75,33 @@ class User {
         }
     }
 }
-
 ```
 
 
-## CONTROLLER INTEGRATION
-The controller integration allows you to define a generic output with customized fields for each Controller. It will require a parent controller to define the shape of each output response.
+## Controllers
+Laravel-Swagger allows you to define a generic, customized output for each Controller. It requires a parent controller to define the base of each output response.
 
 ### Getting Started
-The first things that you need to look into grouping your routes, and having a parent Controller define each group.
+For example, you have controllers `TestController`, `FooController` and `BarController` which serves API requests. 
 
-##### The Routes
-```php
+Each of the `index` methods share similar functionality, which is to display a list of results with pagination. The router definition is as follows:
+
+
+### Example Router Definition
+```PHP
 Route::get('/v1/test', ['uses' => 'TestController@index', 'as' => 'v1.test.index']);
 Route::get('/v1/foo', ['uses' => 'FooController@index', 'as' => 'v1.foo.index']);
 Route::get('/v1/bar', ['uses' => 'BarController@index', 'as' => 'v1.bar.index']);
+
+Route::get('/v1/bar/{bar}', ['uses' => 'BarController@index', 'as' => 'v1.bar.show']);
 ```
 
-Now each route index shares the same functionality, which is to display a list of results using pagination.
 ***
 *I have a custom package to help with Controller functionality which can be found at [Ethereal](http://github.com/kevupton/ethereal)'s [Resource Trait](https://github.com/kevupton/ethereal/wiki/resourcetrait)*
 ***
-In order to create these dynamic methods, the best way is to create a Parent Controller, or `BaseController` which each extends.
+Since these Controllers share the same basic output, you can utilize a `BaseController` that the above Controllers may inherit from. An example `BaseController` is shown below:
 
-### Example
+### Example Base Controller
 
 ```php
 <?php namespace App\Http\Controllers;
@@ -138,28 +140,33 @@ class BaseController extends Controller {
 
 ```
 
-`public static function getSwaggerRoutes()` is the function that returns the structure of the route requests.
+`getSwaggerRoutes` is a method that defines the template structure of the specification for the above mentioned Controllers.
 
-`return []` is the array containing the route `index` and the value `DynamicMethod::GET`
+You would have noticed, that there are placeholder values, such as `{{response}}`, included in the above definition. These values will be replaced with the values found on each of the child Controllers. Refer to the section on [keys](#keys).
 
-#### Route Matching
-the route key: `index` in the example about defines a generic search in the route names that end with that value. Example: `index` will match `v1.test.index` but not `v1.index.test`. It has to end with that value. So `test.index` will also match `v1.test.index`
+### Route Matching
+Referring to the routing definition as shown [here](#example-router-definition), the key `index` refers to the route key `index` of the above Router definitions.
 
-If it matches then it will look for each key on the controller.
+For example, referring to the [above](#example-router-definition), the router key `index` defined in `getSwaggerRoutes` will apply to the route `v1.bar.index` , and not `v1.bar.show`. 
+
+Likewise, `v1.test.index` will match the above definition, but not `v1.index.test`.
 
 ### Keys
-> Keys are defined with **{{keyname}}**
-
-In the example above you can see the example keys:
-```php
-				'tags' => ['{{tag}}'],
-				'summary' => '{{summary}}',
-				'value' => '{{response}}',
+> **{{keyname}}**
+**keyname** refers to the name of the static variable in your Controller, whose value it will be replaced with.
+```php 
+public static $keyname = 'Value that will be replaced';
 ```
-The default behavior will search for these values on each Controller. This behavior can be modified via [Editing the Default Behaviour](#custom-handler)
 
-#### The Default Behavior
-The handler will search the *Child Controller* for each value:
+Referring to [the example](#example-base-controller), you can see the example keys:
+```php
+'tags' => ['{{tag}}'],
+'summary' => '{{summary}}',
+'value' => '{{response}}',
+```
+The default handler will search the *Child Controller* for each variable of the same name, and replace the key with the values the variable contains.
+
+### Example Child Controller
 
 ```php
 class TestController {
@@ -167,10 +174,6 @@ class TestController {
 	public static $summary = "how awesome is this";
 	public static $response = "#/definitions/Response"
 ```
-So for the test controller it will place those variables into each key. **Note how they are static**
-
-This will give an example output of:
-
 ### Example Output
 This is one of the paths located in the swagger json output.
 ```json
@@ -201,10 +204,11 @@ This is one of the paths located in the swagger json output.
 	},
 }
 ```
+*NOTE* The default handler will replace the key with the *static* variable of the same name found in your Controller. You may modify this behavior in the section [Editing the Default Behaviour](#custom-handler).
 
-## CUSTOM HANDLER
+## Custom Handlers
 ### Definition
-Extend the handler class and implement the handle method
+Should you require to change the default behavior of the default handler, you may extend the handler class, and implement the `handle` method, as shown below.
 ```php
 <?php namespace App\Handlers;
 
@@ -240,9 +244,9 @@ class CustomHandler extends DynamicHandler {
 }
 ```
 
-In order to implement it just add it to the custom controller
+To use your new custom handler, you may define `getSwaggerHandler`, returning the `::class` of the new Custom Handler, as shown below.
 
-### Implementation
+### Example Custom Handler Implementation
 
 ```php
 use App\Handlers\CustomHandler;
@@ -259,15 +263,15 @@ class BaseController extends Controller {
 
 ## Overriding Values
 
-All values can be overridden from the *Child Controller*.
+Should your *Child Controller* contains the definition of a static variable, overriding the parent Controller's values, the *Child Controller*'s values will take effect.
 
 
 ## Seperate Container Class
-A seperate class can be used for implementing the definition of the methods:
-`getSwaggerRoutes` and `getSwaggerHandler`
+Instead of defining the `getSwaggerMethods`, `getSwaggerRoutes` and `getSwaggerHandler` directly in your *parent* and *child Controllers*, you may define them in a separate class. 
 
-Just Extend: `\Kevupton\LaravelSwagger\MethodContainer` class.
-*Note: the getSwaggerMethods is yet to be implemented.*
+You may then include it in your BaseController, or any other Controllers, using the static variable `$swagger_container`. Please refer to the example below.
+
+### Example Custom Container Implementation
 
 ```php
 <?php namespace App\Swagger;
@@ -308,7 +312,7 @@ class CustomContainer extends MethodContainer {
 }
 ```
 
-Then on the controller reference your extension by using a static property: `swagger_container`
+### Example Base Controller Implementation
 ```php
 use App\Swagger\CustomContainer;
 

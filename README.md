@@ -204,7 +204,7 @@ This is one of the paths located in the swagger json output.
 	},
 }
 ```
-*NOTE* The default handler will replace the key with the *static* variable of the same name found in your Controller. You may modify this behavior in the section [Editing the Default Behaviour](#custom-handler).
+*NOTE* The default handler will replace the key with the *static* variable of the same name found in your Controller. You may modify this behavior in the section [Editing the Default Behaviour](#custom-handlers).
 
 ## Custom Handlers
 ### Definition
